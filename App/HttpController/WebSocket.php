@@ -8,6 +8,7 @@
 
 namespace App\HttpController;
 
+use EasySwoole\EasySwoole\Config;
 use EasySwoole\Http\AbstractInterface\Controller;
 
 /**
@@ -26,6 +27,12 @@ class WebSocket extends Controller
     public function index()
     {
         $content = file_get_contents(__DIR__ . '/websocket.html');
+
+        $config = Config::getInstance();
+        $content = strtr($content, [
+            '{$websocketAddress}' => $config->getConf('WEBSOCKET_ADDRESS'),
+        ]);
+
         $this->response()->write($content);
         $this->response()->end();
     }

@@ -12,11 +12,12 @@
 
 ## 运行
 
-`App/HttpController/websocket.html`文件中的socket服务器链接按实际情况修改
-
 ```shell
 composer install
 php easyswoole start
+cp env.php.example env.php
 ```
 
-访问：http://192.168.1.110:9501/WebSocket/index
+> `env.php`文件中的socket服务器链接按实际情况修改
+
+访问：http://127.0.0.1:9501/WebSocket/index

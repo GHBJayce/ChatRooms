@@ -6,7 +6,9 @@
  * Time: 20:06
  */
 
-return [
+$env = require_once './env.php';
+
+return array_merge([
     'SERVER_NAME' => "EasySwoole",
     'MAIN_SERVER' => [
         'LISTEN_ADDRESS' => '0.0.0.0',
@@ -24,4 +26,4 @@ return [
     ],
     'TEMP_DIR' => null,
     'LOG_DIR' => null
-];
+], $env);

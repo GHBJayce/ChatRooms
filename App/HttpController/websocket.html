@@ -1,55 +1,118 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/element-ui/2.11.1/theme-chalk/index.css" rel="stylesheet">
 </head>
-<body>
-<div>
-    <div>
-        <p>info below</p>
-        <ul  id="line">
-        </ul>
-    </div>
-    <div>
-        <select id="action">
-            <option value="who">who</option>
-            <option value="hello">hello</option>
-            <option value="delay">delay</option>
-            <option value="404">404</option>
-        </select>
-        <input type="text" id="says">
-        <button onclick="say()">发送</button>
-    </div>
+<body class="bg-info">
+<div id="app" class="p-4">
+    <el-row :gutter="20">
+        <el-col :span="16">
+            <el-card class="box-card" shadow="never">
+                <div slot="header">
+                    <span>世界频道</span>
+                </div>
+                <div v-for="o in 4" :key="o" class="text item">
+                    {{'列表内容 ' + o }}
+                </div>
+            </el-card>
+        </el-col>
+        <el-col :span="8">
+            <el-card class="box-card" shadow="never">
+                <div slot="header">
+                    <span>服务器连接情况</span>
+                </div>
+                <ol>
+                    <li v-for="(v, k) in wsServerConnectionStatus" :key="k">{{ v }}</li>
+                </ol>
+            </el-card>
+        </el-col>
+    </el-row>
 </div>
 </body>
-<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/element-ui/2.11.1/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/j-weapons/dist/j-weapons.min.js"></script>
 <script>
-    var wsServer = 'ws://192.168.1.110:9501';
-    var websocket = new WebSocket(wsServer);
-    window.onload = function () {
-        websocket.onopen = function (evt) {
-            addLine("Connected to WebSocket server.");
-        };
-        websocket.onclose = function (evt) {
-            addLine("Disconnected");
-        };
-        websocket.onmessage = function (evt) {
-            addLine('Retrieved data from server: ' + evt.data);
-        };
-        websocket.onerror = function (evt, e) {
-            addLine('Error occured: ' + evt.data);
-        };
-    };
-    function addLine(data) {
-        $("#line").append("<li>"+data+"</li>");
-    }
-    function say() {
-        var content = $("#says").val();
-        var action = $("#action").val();
-        $("#says").val('');
-        websocket.send(JSON.stringify({
-            action:action,
-            content:content
-        }));
-    }
+    $(function () {
+        var app = new Vue({
+            el: '#app',
+            data: {
+                loading: false,
+                wsServer: '{$websocketAddress}',
+                websocket: {},
+                wsServerConnectionStatus: [],
+            },
+            mounted: function () {
+                this.init();
+            },
+            methods: {
+                init: function () {
+                    this.loading = true;
+
+                    this.buildWebsocket();
+                },
+                buildWebsocket: function () {
+                    var _this = this;
+                    var websocket = new WebSocket(this.wsServer);
+
+                    websocket.onopen = function (e) {
+                        _this.report(1, '服务器连接成功');
+                    };
+                    websocket.onmessage = function (e) {
+                        console.log(2, 'message', e);
+                    };
+                    websocket.onclose = function (e) {
+                        _this.report(3, '与服务器断开连接');
+                    };
+                    websocket.onerror = function (e) {
+                        _this.report(4, '连接失败：' + e.data);
+                    };
+
+                    this.websocket = websocket;
+                },
+                report: function (type, info) {
+                    this.wsServerConnectionStatus.push(info);
+                    if (type === 1) {
+                        this.sendData({
+                            action: 'inter',
+                        });
+                    }
+                },
+                sendData: function (data) {
+                    this.websocket.send(JSON.stringify(data));
+                },
+            },
+        });
+    });
+    // var wsServer = '';
+    // var websocket = new WebSocket(wsServer);
+    // window.onload = function () {
+    //     websocket.onopen = function (evt) {
+    //         addLine("Connected to WebSocket server.");
+    //     };
+    //     websocket.onclose = function (evt) {
+    //         addLine("Disconnected");
+    //     };
+    //     websocket.onmessage = function (evt) {
+    //         addLine('Retrieved data from server: ' + evt.data);
+    //     };
+    //     websocket.onerror = function (evt, e) {
+    //         addLine('Error occured: ' + evt.data);
+    //     };
+    // };
+    // function addLine(data) {
+    //     $("#line").append("<li>"+data+"</li>");
+    // }
+    // function say() {
+    //     var content = $("#says").val();
+    //     var action = $("#action").val();
+    //     $("#says").val('');
+    //     websocket.send(JSON.stringify({
+    //         action:action,
+    //         content:content
+    //     }));
+    // }
 </script>
 </html>

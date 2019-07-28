@@ -46,4 +46,12 @@ class Index extends Controller
             }
         });
     }
+
+    public function inter()
+    {
+        $this->response()->setMessage(json_encode([
+            'id' => $this->caller()->getClient()->getFd(),
+            'name' => rand(5, 8),
+        ], JSON_UNESCAPED_UNICODE));
+    }
 }
